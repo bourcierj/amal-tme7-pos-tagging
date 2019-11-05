@@ -17,7 +17,7 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
     if patience is not None:
         early_stopper = EarlyStopper(patience)
     writer = summary_writer
-    minloss = float('inf')
+    min_loss = float('inf')
     iteration = 1
 
     def train_epoch():
@@ -37,7 +37,6 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
             target = target.view(-1)
             output = output.view(target.size(0), -1)
             loss = criterion(output, target)
-
             epoch_loss += loss.item()
             pbar.set_postfix(loss=f'{loss.item():.4e}')
             if writer:
@@ -60,10 +59,10 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
     def evaluate_epoch():
         net.eval()
         correct = 0
+        total_preds = 0
         val_loss = 0.
-        pbar = tqdm(val_loader, desc=f'Validation', dynamic_ncols=True)
         with torch.no_grad():
-            for data, lengths, target in pbar:
+            for data, lengths, target in val_loader:
                 data, lengths, target = data.to(device), lengths.to(device), \
                                         target.to(device)
                 batch_size, seq_length = tuple(data.size())
@@ -73,14 +72,15 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
                 output = output.view(target.size(0), -1)
                 loss = criterion(output, target)
                 val_loss += loss.item()
-                pbar.set_postfix(loss=f'{loss.item():.4e}')
                 # predict the tags
                 _, pred = output.max(1)
+                mask = target != 0
                 # counts the number of correct predictions
-                correct += pred.eq(target).sum().item()
+                correct += pred[mask].eq(target[mask]).sum().item()
+                total_preds += len(mask)
 
         val_loss /= len(val_loader)
-        acc = correct / len(val_loader.dataset)
+        acc = correct / total_preds
         print(f'Epoch {epoch}/{epochs}, validation mean loss: {val_loss:.4e}, '
               f'validation accuracy: {acc:.4f}')
         if writer:
@@ -95,8 +95,8 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
         train_epoch()
         loss, acc = evaluate_epoch()
         checkpoint.epoch += 1
-        if loss < minloss:
-            minloss = loss
+        if loss < min_loss:
+            min_loss = loss
             checkpoint.save('_best')
         checkpoint.save()
         losses.append(loss)
@@ -107,7 +107,9 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
                 break
 
     print("\nFinished.")
-    print(f"Best loss: {early_stopper.min_loss:.4e}\nBest epoch: {early_stopper.min_epoch}")
+    print(f"Best loss: {min_loss:.4e}")
+    if patience is not None:
+        print(f"Best epoch: {early_stopper.min_epoch}")
     return losses
 
 
