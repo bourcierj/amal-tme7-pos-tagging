@@ -1,8 +1,9 @@
-
+"""Defines recurrent network for tagging."""
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 
 class Tagger(nn.Module):
     """Maps each word in sequences to their tag."""
@@ -29,8 +30,6 @@ class Tagger(nn.Module):
         out, _ = self.rnn(packed)
         # unpack output of RNN
         out, out_lengths = pad_packed_sequence(out)
-
-        assert(torch.all(lengths == out_lengths))
         out = self.lin(out)
         return out
 
@@ -48,7 +47,7 @@ if __name__ == '__main__':
     tags = VocabularyTagging(False)
     train_dataset = TaggingDataset(ds.files["train"], words, tags, True)
     loader = DataLoader(train_dataset, batch_size=8, shuffle=True,
-                              collate_fn=train_dataset.collate)
+                        collate_fn=train_dataset.collate)
 
     data, lengths, target = next(iter(loader))
     print(f"Input batch: {tuple(data.size())}, with lengths: {tuple(lengths.size())}")
@@ -61,4 +60,12 @@ if __name__ == '__main__':
     print(f"Output batch: {tuple(output.data.size())}\n")
 
     print(net)
+    def test_packed_sequence_unsorted(x, lengths):
 
+        # assert that pack_padded_sequence and pad_packed_sequence are exact reverse
+        # operations and don't change order of elements in the batch
+        packed = pack_padded_sequence(x, lengths, enforce_sorted=False)
+        out, out_lengths = pad_packed_sequence(packed)
+        assert(torch.all(torch.eq(x, out)))
+
+    test_packed_sequence_unsorted(data, lengths)

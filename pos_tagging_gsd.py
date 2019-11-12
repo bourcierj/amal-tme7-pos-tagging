@@ -1,4 +1,4 @@
-
+"""Training a POS-tagger on the French GSD dataset."""
 from tqdm import tqdm
 
 import torch
@@ -28,7 +28,7 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
         for data, lengths, target in pbar:
 
             data, lengths, target = data.to(device), lengths.to(device), \
-                                    target.to(device)
+                target.to(device)
             batch_size, seq_length = tuple(data.size())
             # reset gradients
             optimizer.zero_grad()
@@ -158,8 +158,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(net.parameters(), lr=lr)
 
     tensorboard_logdir = './runs/POS-Tagging-1'
-    # writer = SummaryWriter(tensorboard_logdir)
-    writer = None
+    writer = SummaryWriter(tensorboard_logdir)
     savepath = './pos-tagger-checkpt.pt'
 
     checkpoint = CheckpointState(net, optimizer, savepath=savepath)

@@ -1,3 +1,4 @@
+"""Utilities for training: chekpointing, early stopping."""
 import torch
 from pathlib import Path
 

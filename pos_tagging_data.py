@@ -1,3 +1,4 @@
+"""Utilities for handling GSD datasets from datamaestro"""
 
 from tqdm import tqdm
 import unicodedata
@@ -9,16 +10,15 @@ import torch
 
 
 class VocabularyTagging:
-    """Helper class to manage a vocabulary"""
+    """Helper class to manage a vocabulary.
+    Args:
+        oov (bool): if True, allow out of vocabulary tokens
+    """
 
     OOV_ID = 1  # out of vocabulary code
     NULL_ID = 0  # not a word (empty token)
 
     def __init__(self, oov: bool):
-        """
-        Args:
-            oov (bool): if True, allow out of vocabulary tokens
-        """
         self.oov = oov
         self.word2id = {'': 0}
         self.id2word = ['']
@@ -30,7 +30,7 @@ class VocabularyTagging:
         return self.id2word[idx]
 
     def get(self, word: str, adding=True):
-        """Maps a word to its id
+        """Maps a word to its id.
         Args:
             word (str): word for which to get the id
             adding (bool): if True, adds the word to vocab if it does not exists
@@ -50,7 +50,6 @@ class VocabularyTagging:
     def __len__(self):
         return len(self.id2word)
 
-
 class TaggingDataset(Dataset):
     """Dataset for Part-Of-Speech tagging."""
 
@@ -68,11 +67,17 @@ class TaggingDataset(Dataset):
         return len(self.sentences)
 
     def __getitem__(self, idx):
+        """
+        Args:
+            idx: the index
+        """
         return self.sentences[idx]
 
     @staticmethod
     def collate(batch):
-        """
+        """Collate function (pass to DataLoader's collate_fn arg).
+        Args:
+            batch (list): list of examples returned by __getitem__
         Returns:
             tuple: Three tensors: batch of padded sequences, lengths of senquences,
             and targets (ie POS tags for each word)
