@@ -50,6 +50,16 @@ class VocabularyTagging:
     def __len__(self):
         return len(self.id2word)
 
+    def decode(self, sentence):
+        """Decodes a sentence.
+        Args:
+            sentence (list): a list or Tensor of ids
+        Returns:
+            list: a list of words
+        """
+        return [self.id2word[w] for w in sentence]
+
+
 class TaggingDataset(Dataset):
     """Dataset for Part-Of-Speech tagging."""
 
@@ -119,9 +129,10 @@ if __name__ == '__main__':
 
     print("Train samples:")
     for i in range(3):
-        data, target = train_data[i]
-        print(f'Input: {[words.id2word[w] for w in data]}')
-        print(f'Target: {[tags.id2word[t] for t in target]}')
+        sentence, target = train_data[i]
+        print(f"Input: {' '.join(words.decode(sentence))}")
+        print(f"Target: {' '.join(tags.decode(target))}")
+        # print(f"Target: {[tags.id2word[t] for t in target]}")
 
     # print('Test of collate')
     # batch = train_data[:16]

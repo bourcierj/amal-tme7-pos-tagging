@@ -3,7 +3,7 @@ import torch
 from pathlib import Path
 
 class CheckpointState():
-    """A model checkpoint state"""
+    """A model checkpoint state."""
     def __init__(self, model, optimizer, epoch=1, savepath='./checkpt.pt'):
 
         self.model = model
@@ -38,7 +38,7 @@ class CheckpointState():
 
 
 class EarlyStopper():
-    """Object to use early stopping during training"""
+    """Object to use early stopping during training."""
     def __init__(self, patience):
 
         self.patience = patience
