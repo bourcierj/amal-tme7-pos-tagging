@@ -2,21 +2,24 @@
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 class Tagger(nn.Module):
-    """Maps each word in sequences to their tag."""
-
-    def __init__(self, vocab_size, num_tags, embedding_size, hidden_size):
+    """Model for tagging.
+    Maps each word in sequences to their tag. Uses a GRU recurrent cell
+    """
+    def __init__(self, vocab_size, num_tags, embedding_size, hidden_size,
+                 num_layers=1, dropout=0, bidirectional=False):
 
         super(Tagger, self).__init__()
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
         self.vocab_size = vocab_size
         self.embedding = nn.Embedding(vocab_size, embedding_size)
-        self.rnn = nn.GRU(embedding_size, hidden_size)
-        self.lin = nn.Linear(hidden_size, num_tags)
+        self.rnn = nn.GRU(embedding_size, hidden_size, num_layers,
+                          dropout=dropout, bidirectional=bidirectional)
+        num_directions = 2 if bidirectional else 1
+        self.lin = nn.Linear(num_directions * hidden_size, num_tags)
 
     def forward(self, x, lengths):
         """
