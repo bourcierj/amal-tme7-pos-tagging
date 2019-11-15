@@ -92,13 +92,10 @@ class TaggingDataset(Dataset):
             tuple: Three tensors: batch of padded sequences, lengths of senquences,
             and targets (ie POS tags for each word)
         """
-        #@todo: Change padding to 0 to be able to use CrossEntropyLoss with ignore_index=0
-        # We have to ensure text and tags vocabulary codes start at 1.
-
         text, target = list(zip(*batch))
         lengths = torch.tensor([len(s) for s in text], dtype=torch.int)
 
-        # pad the sequences with 0
+        # pad the sequences with 0 (0 maps to empty ('') character)
         text = pad_sequence(text)
         target = pad_sequence(target)
 

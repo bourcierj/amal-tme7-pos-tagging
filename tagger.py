@@ -24,7 +24,7 @@ class Tagger(nn.Module):
     def forward(self, x, lengths):
         """
         Args:
-            x (Tensor): tensor of padded sequences of dim (T, B, 1)
+            x (Tensor): tensor of padded sequences of dim (T, B)
             lengths (list): lengths of sentences, for packing.
         """
         embed = self.embedding(x)  # (T, B, embedding_size)
@@ -54,19 +54,22 @@ if __name__ == '__main__':
 
     data, lengths, target = next(iter(loader))
     print(f"Input batch: {tuple(data.size())}, with lengths: {tuple(lengths.size())}")
+    print(data)
     print(f"Target batch: {tuple(target.size())}\n")
+    print(target)
 
     vocab_size = len(words)
     num_tags = len(tags)
     net = Tagger(vocab_size, num_tags, embedding_size=10, hidden_size=5)
     output = net(data, lengths)
     print(f"Output batch: {tuple(output.data.size())}\n")
-
+    print(output)
     print(net)
-    def test_packed_sequence_unsorted(x, lengths):
 
-        # assert that pack_padded_sequence and pad_packed_sequence are exact reverse
-        # operations and don't change order of elements in the batch
+    def test_packed_sequence_unsorted(x, lengths):
+        """Assert that pack_padded_sequence and pad_packed_sequence are exact reverse
+        operations and don't change order of elements in the batch"""
+
         packed = pack_padded_sequence(x, lengths, enforce_sorted=False)
         out, out_lengths = pad_packed_sequence(packed)
         assert(torch.all(torch.eq(x, out)))
