@@ -19,7 +19,7 @@ To train the GRU RNN on the dataset:
 ```
 $ python pos_tagging_gsd.py <options>
 ```
-With a buch of options available.
+A bunch of options are available (see the source file).
 
 ## Todo
 

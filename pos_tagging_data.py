@@ -101,6 +101,12 @@ class TaggingDataset(Dataset):
 
         return (text, lengths, target)
 
+    def num_oov_words(self, words: VocabularyTagging):
+        """Returns the number of OOV words"""
+        n_oov = 0
+        for s, t in self.sentences:
+            n_oov += (s == words.OOV_ID).sum().item()
+        return n_oov
 
 if __name__ == '__main__':
 
@@ -115,14 +121,14 @@ if __name__ == '__main__':
     words = VocabularyTagging(True)
     tags = VocabularyTagging(False)
     train_data = TaggingDataset(ds.files["train"], words, tags, True)
-    dev_data = TaggingDataset(ds.files["dev"], words, tags, True)
+    dev_data = TaggingDataset(ds.files["dev"], words, tags, False)
     test_data = TaggingDataset(ds.files["test"], words, tags, False)
 
     print("Vocabulary size:", len(words))
     print("Number of tags:", len(tags))
 
     print(f"Train sentences: {len(train_data)}, test sentences: {len(test_data)}, "
-          f"dev sentences: {len(dev_data)}")
+          f"dev sentences: {len(dev_data)}\n")
 
     print("Train samples:")
     for i in range(3):
@@ -130,6 +136,10 @@ if __name__ == '__main__':
         print(f"Input: {' '.join(words.decode(sentence))}")
         print(f"Target: {' '.join(tags.decode(target))}")
         # print(f"Target: {[tags.id2word[t] for t in target]}")
+    print()
+    print(f"Number of OOV words in dev set: {dev_data.num_oov_words(words)}")
+    print(f"Number of OOV words in test set: {test_data.num_oov_words(words)}")
+    #@todo: number of OOV words
 
     # print('Test of collate')
     # batch = train_data[:16]
