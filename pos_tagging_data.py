@@ -1,9 +1,5 @@
 """Utilities for handling GSD datasets from datamaestro"""
 
-from tqdm import tqdm
-import unicodedata
-import string
-
 from torch.utils.data import Dataset
 from torch.nn.utils.rnn import pad_sequence
 import torch
@@ -107,6 +103,7 @@ class TaggingDataset(Dataset):
         for s, t in self.sentences:
             n_oov += (s == words.OOV_ID).sum().item()
         return n_oov
+
 
 if __name__ == '__main__':
 

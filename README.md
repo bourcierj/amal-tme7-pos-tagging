@@ -3,11 +3,11 @@
 
 ## POS-Tagging with a GRU RNN.
 
-In this practical work, we try to solve the NLP task of part-of-speech tagging (POS-tagging). It consists of assigning to each word in a sentence its grammatical nature or category.
+In this practical work, we try to solve the NLP task of part-of-speech tagging (POS-tagging). It consists of assigning to each word in a sentence its grammatical nature, or category (like a verb or a noun).
 
 The dataset is the [French-GSD dataset](https://github.com/UniversalDependencies/UD_French-GSD).
 
-We use a RNN with a GRU cell.
+The model is a RNN with a GRU cell.
 
 Without trying a bidirectional or a stacked RNN for improvement, we are quickly able to obtain over 90% accuracy on the development set in just a few epochs.
 

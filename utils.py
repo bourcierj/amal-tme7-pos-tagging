@@ -5,7 +5,7 @@ from pathlib import Path
 
 class CheckpointState():
     """A model checkpoint state."""
-    def __init__(self, model, optimizer, epoch=1, savepath='./checkpt.pt'):
+    def __init__(self, model, optimizer=None, epoch=1, savepath='./checkpt.pt'):
 
         self.model = model
         self.optimizer = optimizer
@@ -34,7 +34,8 @@ class CheckpointState():
 
     def update(self, state_dict):
         self.model.load_state_dict(state_dict['model'])
-        self.optimizer.load_state_dict(state_dict['optimizer'])
+        if self.optimizer is not None:
+            self.optimizer.load_state_dict(state_dict['optimizer'])
         self.epoch = state_dict['epoch']
 
 
