@@ -117,9 +117,9 @@ if __name__ == '__main__':
     print("Loading French GSD datasets...")
     words = VocabularyTagging(True)
     tags = VocabularyTagging(False)
-    train_data = TaggingDataset(ds.files["train"], words, tags, True)
-    dev_data = TaggingDataset(ds.files["dev"], words, tags, False)
-    test_data = TaggingDataset(ds.files["test"], words, tags, False)
+    train_data = TaggingDataset(ds.files['train'], words, tags, True)
+    dev_data = TaggingDataset(ds.files['dev'], words, tags, False)
+    test_data = TaggingDataset(ds.files['test'], words, tags, False)
 
     print("Vocabulary size:", len(words))
     print("Number of tags:", len(tags))
@@ -136,7 +136,6 @@ if __name__ == '__main__':
     print()
     print(f"Number of OOV words in dev set: {dev_data.num_oov_words(words)}")
     print(f"Number of OOV words in test set: {test_data.num_oov_words(words)}")
-    #@todo: number of OOV words
 
     # print('Test of collate')
     # batch = train_data[:16]

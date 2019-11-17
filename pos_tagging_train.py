@@ -97,7 +97,6 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
 
         mean_loss /= len(loader)
         acc = correct / total_preds
-
         print(f"Epoch {epoch}/{epochs}, {role} mean loss: {mean_loss:.4e}, "
               f"{role} accuracy: {acc:.4f}")
         if writer:
@@ -138,7 +137,7 @@ if __name__ == '__main__':
     def parse_args():
         """Parse command line arguments."""
         parser = argparse.ArgumentParser(description="Training a POS-tagger on the French"
-                                                     "GSD dataset.")
+                                                     "-GSD dataset.")
         parser.add_argument('--batch-size', default=128, type=int)
         parser.add_argument('--lr', default=0.001, type=float)
         parser.add_argument('--epochs', default=20, type=int)
@@ -149,6 +148,8 @@ if __name__ == '__main__':
         parser.add_argument('--num-layers', default=1, type=int)
         parser.add_argument('--dropout', default=0, type=float)
         parser.add_argument('--bidirectional', default=False, type=bool)
+        parser.add_argument('--savepath', default='./pos-tagger-checkpt.pt',
+                            type=str)
         return parser.parse_args()
 
     torch.manual_seed(42)
@@ -167,14 +168,13 @@ if __name__ == '__main__':
 
     words = VocabularyTagging(True)
     tags = VocabularyTagging(False)
-    train_dataset = TaggingDataset(ds.files["train"], words, tags, True)
-    val_dataset = TaggingDataset(ds.files["dev"], words, tags, False)
+    train_dataset = TaggingDataset(ds.files['train'], words, tags, True)
+    val_dataset = TaggingDataset(ds.files['dev'], words, tags, False)
 
     kwargs = dict(num_workers=torch.multiprocessing.cpu_count(),
                   pin_memory=(device.type == 'cuda'))
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
                               collate_fn=TaggingDataset.collate, **kwargs)
-
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True,
                             collate_fn=TaggingDataset.collate, **kwargs)
 
@@ -196,8 +196,7 @@ if __name__ == '__main__':
     data, lengths, target = next(iter(train_loader))
     writer.add_graph(net, (data, lengths))
 
-    savepath = './pos-tagger-checkpt.pt'
-    checkpoint = CheckpointState(net, optimizer, savepath=savepath)
+    checkpoint = CheckpointState(net, optimizer, savepath=args.savepath)
 
     losses = train(checkpoint, criterion, train_loader, val_loader, args.epochs,
                    patience=args.patience, clip=args.clip, summary_writer=writer)
