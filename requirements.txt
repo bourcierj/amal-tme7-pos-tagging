@@ -1,4 +1,5 @@
 pytorch
+tensorboard
 spacy
 https://github.com/explosion/spacy-models/releases/download/fr_core_web_sm-2.2.0/fr_core_web_sm-2.2.0.tar.gz#egg=fr_core_web_sm
 tqdm
