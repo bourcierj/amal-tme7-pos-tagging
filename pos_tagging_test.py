@@ -44,40 +44,24 @@ if __name__ == '__main__':
 
     def parse_args():
         """Parse command line arguments."""
-        parser = argparse.ArgumentParser(description="Evaluates a POS-tagger on the test"
-                                                     "set of the French-GSD dataset.")
-        parser.add_argument("--saved-path", default='./pos-tagger-checkpt.pt',
+        parser = argparse.ArgumentParser(
+            description="Evaluates a POS-tagger on the test set of the French-GSD "
+                        "dataset.")
+        parser.add_argument("--saved-path",
+                            default='./checkpoints/saved/checkpt.pt',
                             type=str)
         return parser.parse_args()
 
     torch.manual_seed(42)
     args = parse_args()
-    if args.saved_path is None:
-        raise Exception("No file path provided for the model checkpoint.")
 
-    from torch.utils.data import DataLoader
-
-    from datamaestro import prepare_dataset
     from tagger import Tagger
-    from pos_tagging_data import VocabularyTagging, TaggingDataset
-    from utils import CheckpointState
+    from pos_tagging_data import *
+    from utils import *
 
-    ds = prepare_dataset('org.universaldependencies.french.gsd')
-    words = VocabularyTagging(True)
-    tags = VocabularyTagging(False)
-    train_dataset = TaggingDataset(ds.files['train'], words, tags, True)
-    val_dataset = TaggingDataset(ds.files['dev'], words, tags, False)
-    test_dataset = TaggingDataset(ds.files['test'], words, tags, False)
-
-    kwargs = dict(num_workers=torch.multiprocessing.cpu_count(),
-                  pin_memory=(device.type == 'cuda'))
     batch_size = 128
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
-                              collate_fn=TaggingDataset.collate, **kwargs)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
-                            collate_fn=TaggingDataset.collate, **kwargs)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True,
-                             collate_fn=TaggingDataset.collate, **kwargs)
+    train_loader, val_loader, test_loader, words, tags = \
+        get_dataloaders_and_vocabs(batch_size)
 
     criterion = nn.CrossEntropyLoss(ignore_index=0)
 

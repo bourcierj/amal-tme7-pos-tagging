@@ -39,19 +39,11 @@ class Tagger(nn.Module):
 
 if __name__ == '__main__':
 
-    from torch.utils.data import DataLoader
-    from datamaestro import prepare_dataset
-    ds = prepare_dataset('org.universaldependencies.french.gsd')
+    from pos_tagging_data import *
 
-    BATCH_SIZE = 100
-
-    from pos_tagging_data import VocabularyTagging, TaggingDataset
-
-    words = VocabularyTagging(True)
-    tags = VocabularyTagging(False)
-    train_dataset = TaggingDataset(ds.files["train"], words, tags, True)
-    loader = DataLoader(train_dataset, batch_size=8, shuffle=True,
-                        collate_fn=train_dataset.collate)
+    batch_size = 128
+    loader, _, _, words, tags = \
+        get_dataloaders_and_vocabs(batch_size)
 
     data, lengths, target = next(iter(loader))
     print(f"Input batch: {tuple(data.size())}, with lengths: {tuple(lengths.size())}")
@@ -69,8 +61,8 @@ if __name__ == '__main__':
 
     def test_packed_sequence_unsorted(x, lengths):
         """Assert that pack_padded_sequence and pad_packed_sequence are exact reverse
-        operations and don't change order of elements in the batch"""
-
+        operations and don't change order of elements in the batch
+        """
         packed = pack_padded_sequence(x, lengths, enforce_sorted=False)
         out, out_lengths = pad_packed_sequence(packed)
         assert(torch.all(torch.eq(x, out)))

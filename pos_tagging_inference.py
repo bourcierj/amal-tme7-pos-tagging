@@ -39,28 +39,23 @@ if __name__ == '__main__':
 
     def parse_args():
         """Parse command line arguments."""
-        parser = argparse.ArgumentParser(description="Predicting the POS-tags for an"
-                                                     "input sentence.")
-        parser.add_argument('--saved-path', default='./pos-tagger-checkpt.pt',
+        parser = argparse.ArgumentParser(
+            description="Predicts the POS-tags for an input sentence.")
+        parser.add_argument('--saved-path', default='./checkpoints/saved/checkpt.pt',
                             type=str)
         parser.add_argument('--text', default=None, type=str)
         return parser.parse_args()
 
     torch.manual_seed(42)
     args = parse_args()
-    if args.saved_path is None:
-        raise Exception("No file path provided for the model checkpoint.")
 
-    from datamaestro import prepare_dataset
     from tagger import Tagger
-    from pos_tagging_data import VocabularyTagging, TaggingDataset
+    from pos_tagging_data import *
     from utils import CheckpointState
 
-    ds = prepare_dataset('org.universaldependencies.french.gsd')
-
-    words = VocabularyTagging(True)
-    tags = VocabularyTagging(False)
-    train_dataset = TaggingDataset(ds.files['train'], words, tags, True)
+    batch_size = 128
+    _, _, _, words, tags = \
+        get_dataloaders_and_vocabs(batch_size=128)
 
     # load model from saved checkpoint
     net = Tagger(len(words), len(tags), embedding_size=30, hidden_size=30)

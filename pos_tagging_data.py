@@ -1,9 +1,10 @@
-"""Utilities for handling GSD datasets from datamaestro"""
+"""Utilities for handling GSD dataset from datamaestro"""
 
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 import torch
 
+from datamaestro import prepare_dataset
 
 class VocabularyTagging:
     """Helper class to manage a vocabulary.
@@ -73,10 +74,6 @@ class TaggingDataset(Dataset):
         return len(self.sentences)
 
     def __getitem__(self, idx):
-        """
-        Args:
-            idx: the index
-        """
         return self.sentences[idx]
 
     @staticmethod
@@ -90,11 +87,9 @@ class TaggingDataset(Dataset):
         """
         text, target = list(zip(*batch))
         lengths = torch.tensor([len(s) for s in text], dtype=torch.int)
-
         # pad the sequences with 0 (0 maps to empty ('') character)
         text = pad_sequence(text)
         target = pad_sequence(target)
-
         return (text, lengths, target)
 
     def num_oov_words(self, words: VocabularyTagging):
@@ -103,6 +98,29 @@ class TaggingDataset(Dataset):
         for s, t in self.sentences:
             n_oov += (s == words.OOV_ID).sum().item()
         return n_oov
+
+
+def get_dataloaders_and_vocabs(batch_size):
+
+    ds = prepare_dataset('org.universaldependencies.french.gsd')
+
+    words = VocabularyTagging(True)
+    tags = VocabularyTagging(False)
+    train_dataset = TaggingDataset(ds.files['train'], words, tags, True)
+    val_dataset = TaggingDataset(ds.files['dev'], words, tags, False)
+    test_dataset = TaggingDataset(ds.files['test'], words, tags, False)
+
+    kwargs = dict(collate_fn=TaggingDataset.collate,
+                  pin_memory=(torch.cuda.is_available()),
+                  num_workers=torch.multiprocessing.cpu_count()
+                  )
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True,
+                              **kwargs)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True,
+                            **kwargs)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True,
+                             **kwargs)
+    return train_loader, val_loader, test_loader, words, tags
 
 
 if __name__ == '__main__':
