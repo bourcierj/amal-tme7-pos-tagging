@@ -103,7 +103,6 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
             writer.add_scalar(f"{role}_epoch_accuracy", acc, epoch)
         return mean_loss, acc
 
-    losses = list()
     begin_epoch = checkpoint.epoch
     for epoch in range(begin_epoch, epochs+1):
 
@@ -128,7 +127,6 @@ def train(checkpoint, criterion, train_loader, val_loader, epochs, patience=None
     print(f"With accuracy: {best_acc}")
     if patience is not None:
         print(f"Best epoch: {early_stopper.min_epoch}")
-    return losses
 
 
 if __name__ == '__main__':
@@ -193,3 +191,4 @@ if __name__ == '__main__':
 
     train(checkpoint, criterion, train_loader, val_loader, args.epochs,
           patience=args.patience, clip=args.clip, writer=writer)
+    writer.close()

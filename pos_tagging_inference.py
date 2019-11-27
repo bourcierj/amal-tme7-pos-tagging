@@ -1,6 +1,6 @@
 """
-Asks for a sentence as input and predict the POS-tags for each word using an already
-trained model.
+Predicts the POS-tags for input sentences, using a model trained on the French GSD
+dataset.
 """
 
 import argparse
@@ -8,19 +8,19 @@ import spacy  # spaCy is used only to tokenize text.
 import torch
 import torch.nn.functional as F
 
-nlp = spacy.load('fr_core_news_sm')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-def predict(net, text, words, tags):
+def predict(net, text, spacy_lang, words, tags):
     """Predict the tags for every word in a raw sentence.
     Args:
         net (torch.nn.Module): the trained model
+        spacy_lang (spacy.lang._): a spacy language object, used to tokenize the text
         text (str): the raw sentence
-        words (TaggingVocabulary)
-        tags (TaggingVocablary)
+        words (TaggingVocabulary): the words vocabulary
+        tags (TaggingVocablary): the tags vocabulary
     """
     # tokenize the text using spacy
-    doc = nlp(text)
+    doc = spacy_lang(text)
     data = torch.tensor([words.get(token.text, False) for token in doc]).unsqueeze(1)
     length = torch.tensor([len(data)])
     net.eval()
@@ -40,7 +40,8 @@ if __name__ == '__main__':
     def parse_args():
         """Parse command line arguments."""
         parser = argparse.ArgumentParser(
-            description="Predicts the POS-tags for an input sentence.")
+            description="Predicts the POS-tags for an input sentence, using a model "
+                        "trained on the French GSD dataset.")
         parser.add_argument('--saved-path', default='./checkpoints/saved/checkpt.pt',
                             type=str)
         parser.add_argument('--text', default=None, type=str)
@@ -63,8 +64,10 @@ if __name__ == '__main__':
     checkpoint.load()
     net = net.to(device)
 
+    nlp = spacy.load('fr_core_news_sm')
+
     if args.text is not None:
-        word2tag = predict(net, args.text, words, tags)
+        word2tag = predict(net, args.text, nlp, words, tags)
         print("=>")
         print(word2tag)
     else:
@@ -73,7 +76,7 @@ if __name__ == '__main__':
                 # ask for input text
                 text = input("Enter your text:\n")
                 # predict the tags and print them
-                word2tag = predict(net, text, words, tags)
+                word2tag = predict(net, text, nlp, words, tags)
                 print("=>")
                 print(word2tag)
         except KeyboardInterrupt:
