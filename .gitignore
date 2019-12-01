@@ -6,6 +6,7 @@
 *.checkpt
 /checkpoints
 /rsync_exclude.txt
+TODO.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
