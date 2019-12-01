@@ -1,7 +1,7 @@
 pytorch
 tensorboard
 spacy
-https://github.com/explosion/spacy-models/releases/download/fr_core_web_sm-2.2.0/fr_core_web_sm-2.2.0.tar.gz#egg=fr_core_web_sm
+https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-2.2.5/fr_core_news_sm-2.2.5.tar.gz#egg=fr_core_news_sm
 tqdm
 git+https://github.com/experimaestro/datamaestro
 git+https://github.com/experimaestro/datamaestro_text
