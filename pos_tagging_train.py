@@ -1,4 +1,4 @@
-"""Training a POS-tagger on the French GSD dataset."""
+"""Trains a POS-tagger on the French GSD dataset."""
 
 from tqdm import tqdm
 import argparse

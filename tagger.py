@@ -1,12 +1,13 @@
-"""Defines recurrent network for tagging."""
+"""Defines a recurrent network for a generic NLP tagging task."""
 
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import torch
 import torch.nn as nn
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 class Tagger(nn.Module):
-    """Model for tagging.
+    """
+    Model for a generic NLP tagging task.
     Maps each word in sequences to their tag. Uses a GRU recurrent cell
     """
     def __init__(self, vocab_size, num_tags, embedding_size, hidden_size,
@@ -28,7 +29,7 @@ class Tagger(nn.Module):
             x (Tensor): tensor of padded sequences of dim (T, B)
             lengths (list): lengths of sentences, for packing.
         """
-        embed = self.embedding(x)  # (T, B, embedding_size)
+        embed = self.embedding(x)  # (seq_len, batch, embedding_size)
         # pack sequences for the RNN
         packed = pack_padded_sequence(embed, lengths, enforce_sorted=False)
         out, _ = self.rnn(packed)

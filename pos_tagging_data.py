@@ -6,10 +6,11 @@ import torch
 
 from datamaestro import prepare_dataset
 
+
 class VocabularyTagging:
     """Helper class to manage a vocabulary.
     Args:
-        oov (bool): if True, allow out of vocabulary tokens
+        oov (bool): if True, allow out of vocabulary (OOV) tokens
     """
 
     OOV_ID = 1  # out of vocabulary code
@@ -30,7 +31,8 @@ class VocabularyTagging:
         """Maps a word to its id.
         Args:
             word (str): word for which to get the id
-            adding (bool): if True, adds the word to vocab if it does not exists
+            adding (bool): if True, adds word to vocabulary if it was not
+                encountered before.
         """
         try:
             return self.word2id[word]
@@ -47,14 +49,16 @@ class VocabularyTagging:
     def __len__(self):
         return len(self.id2word)
 
-    def decode(self, sentence):
+    def decode(self, sen):
         """Decodes a sentence.
         Args:
-            sentence (list): a list or Tensor of ids
+            sen (list): a list of Tensor of ids
         Returns:
-            list: a list of words
+            list: a list of string tokens
         """
-        return [self.id2word[w] for w in sentence]
+        if isinstance(sen, torch.Tensor):
+            sen = sen.tolist()
+        return [self.id2word[w] for w in sen]
 
 
 class TaggingDataset(Dataset):
@@ -125,7 +129,6 @@ def get_dataloaders_and_vocabs(batch_size):
 
 if __name__ == '__main__':
 
-    from datamaestro import prepare_dataset
     ds = prepare_dataset('org.universaldependencies.french.gsd')
 
     BATCH_SIZE = 100
